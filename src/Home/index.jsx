@@ -1,7 +1,9 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from 'react';
 import { Button, Modal, } from 'react-bootstrap';
-
+import "./IndexStyle.css"
+import { components } from "react-select";
+import { default as ReactSelect } from "react-select";
 function Home() {
     const [rowData, setRowData] = useState([
         {
@@ -18,7 +20,7 @@ function Home() {
             city: "Delhi",
             address: "Tilak nagar, Raja park, jaipur",
         },
-         {
+        {
             id: 3,
             name: "Shivam",
             country: "India",
@@ -47,33 +49,65 @@ function Home() {
             address: "Tilak nagar, Raja park, jaipur",
         }
     ])
-const [addData,setAddData] = useState()
+    const colourOptions = [
+        { value: "ocean1", label: "Ocean" },
+        { value: "blue", label: "Blue" },
+        { value: "purple", label: "Purple" },
+        { value: "red", label: "Red" },
+        { value: "orange", label: "Orange" },
+        { value: "yellow", label: "Yellow" },
+        { value: "green", label: "Green" },
+        { value: "forest", label: "Forest" },
+        { value: "slate", label: "Slate" },
+        { value: "silver", label: "Silver" }
+      ];
+      
+    const [addData, setAddData] = useState()
     const [show, setShow] = useState(false);
+    
+    const [optionSelected, setOptionSelected] = useState(null)
     const [addFormData, setAddFormData] = useState({
         id: null,
         name: "",
         country: "",
         city: "",
         address: "",
+        hobbies:''
     })
-    console.log(addFormData);
+    
     const handleAddFormChange = (e) => {
         e.preventDefault();
-        setAddFormData(state => ({...state, [e.target.name]: e.target.value}))
+        setAddFormData(state => ({ ...state, [e.target.name]: e.target.value }))
+    }
+
+    const handleSelectChange = (selected) => {
+        setAddFormData({...addFormData,hobbies:selected})
+    };
+
+    const addNewRecord = (e) => {
+        e.preventDefault()
+        console.log("addFormData", addFormData,addFormData.length > 0,!!addFormData.name)
+
+        if (!!addFormData.name) {
+            setRowData([
+                ...rowData,
+                {
+                    id: rowData?.length + 2,
+                     name: addFormData?.name,
+                    country: addFormData?.country,
+                    city: addFormData?.city,
+                    address: addFormData?.address,
+                    hobbies: addFormData.hobbies
+                }
+            ]);
+            console.log("addFormData==9", addFormData)
+            handleClose();
+        }
 
     }
-   const addNewRecord = (e) => {
-    e.preventDefault()
-    console.log("addFormData", addFormData)
-    setRowData([
-        ...rowData,
-        { id: rowData?.length + 2, name: addFormData?.name,
-        country: addFormData?.country,
-        city: addFormData?.city,
-        address: addFormData?.address }
-      ]);
-      handleClose();
-   }
+    
+    console.log("addFormData==0", rowData)
+
     const handleClose = () => {
         setShow(false)
         setAddFormData({
@@ -82,50 +116,60 @@ const [addData,setAddData] = useState()
             country: "",
             city: "",
             address: "",
+            hobbies:''
+            
         });
     };
-
+ 
     const updateRecord = (e) => {
         e.preventDefault();
         const nextCounters = rowData.map((c, i) => {
             if (c.id === addFormData?.id) {
-              return addFormData
+                return addFormData
             } else {
-              return c;
+                return c;
             }
-          });
-          setRowData(nextCounters);
-          handleClose()
+        });
+        setRowData(nextCounters);
+        handleClose()
     }
     const handleShow = () => setShow(true);
+    const Option = (props) => {
+        return (
+            <div>
+                <components.Option {...props}>
+                    <input
+                        type="checkbox"
+                        checked={props.isSelected}
+                        onChange={() => null}
+                    />{" "}
+                    <label>{props.label}</label>
+                </components.Option>
+            </div>
+        );
+    };
+
     return (
 
-        <div className="container ">
+        <div className="container p-0 m-0 " >
             <div className="crud shadow-lg p-3 mb-5 mt-5 bg-body rounded">
                 <div className="row ">
 
-                    <div className="col-sm-3 mt-5 mb-4 text-gred">
+                    <div>
+                        <div style={{ color: "#2f4261", display: "flex", justifyContent: "center", alignItems: "center" }}><h2><b>Student Details</b></h2></div>
                         <div className="search">
-                            <form className="form-inline">
-                                <input className="form-control mr-sm-2" type="search" placeholder="Search Student" aria-label="Search" />
+                            <form className="form-inline" style={{
+                                dis
+                                    : "flex", float: "right"
+                            }}>
+                                <Button variant="primary" style={{marginBottom:'20px'}} onClick={handleShow}>
+                                    Add Record
+                                </Button>
 
                             </form>
                         </div>
                     </div>
-                    <div className="col-sm-3 offset-sm-2 mt-5 mb-4 text-gred" style={{ color: "red" }}><h2><b>Student Details</b></h2></div>
-                    {/* <div className="col-sm-3 offset-sm-1  mt-5 mb-4 text-gred" style={{ display: 'flex', flexDirection: 'row', }}>
-                        <Button variant="danger" onClick={handleShow}>
-                            Add New Student
-                        </Button>
-                        <Button variant="outline-primary">Primary</Button>
-                        <Button variant="primary" onClick={handleAddFormChange}>
-                           Edit Student
-                        </Button>
-                        <Button variant="primary" onClick={handleShow}>
-                            Delete Student
-                        </Button>
 
-                    </div> */}
                 </div>
                 <div className="row">
                     <div className="table-responsive " >
@@ -141,32 +185,38 @@ const [addData,setAddData] = useState()
                                     <th>Country</th>
                                     <th>City </th>
                                     <th>Address</th>
+                                    <th>Hobbies</th>
                                     <th>Actions</th>
+                                   
                                 </tr>
                             </thead>
                             <tbody>
 
                                 {rowData?.length > 0 && rowData?.map((item, i) => {
                                     return <tr>
-                                    <td>{item?.id}</td>
-                                    <td>{item?.name}</td>
-                                    <td>{item?.country}</td>
-                                    <td>{item?.city}</td>
-                                    <td>{item?.address}</td>
-                                    <td>
-                                        <a href="#" className="view" title="View" data-toggle="tooltip" style={{color:"#10ab80"}} onClick={handleShow}><i className="material-icons">&#xE417;</i></a>
-                                <a href="#" className="edit" title="Edit" data-toggle="tooltip"><i className="material-icons" onClick={(e) => {
-                                    handleShow(e)
-                                    setAddFormData(item)
-                                    }}>&#xE254;</i></a>
-                                <a href="#" className="delete" title="Delete" data-toggle="tooltip" style={{color:"red"}} onClick={() => {
-                                    setRowData(rowData?.filter(obj => obj?.id != item.id))
-                                }}><i className="material-icons">&#xE872;</i></a>
+                                        <td>{item?.id}</td>
+                                        <td>{item?.name}</td>
+                                        <td>{item?.country}</td>
+                                        <td>{item?.city}</td>
+                                        <td>{item?.address}</td>
+                                        <td>{item?.hobbies?.map((hobie)=>(
+                                            <span>{hobie.value},</span>
+                                        ))}</td>
 
-                                    </td>
-                                </tr>
+                                        <td>
+
+                                            <a href="#" className="edit" title="Edit" data-toggle="tooltip"><i className="material-icons" onClick={(e) => {
+                                                handleShow(e)
+                                                setAddFormData(item)
+                                            }}>&#xE254;</i></a>
+                                            <a href="#" className="delete" title="Delete" data-toggle="tooltip" style={{ color: "red" }} onClick={() => {
+                                                setRowData(rowData?.filter(obj => obj?.id != item.id))
+                                            }}><i className="material-icons">&#xE872;</i></a>
+
+                                        </td>
+                                    </tr>
                                 })}
-                                
+
                             </tbody>
                         </table>
                     </div>
@@ -185,9 +235,9 @@ const [addData,setAddData] = useState()
                         </Modal.Header>
                         <Modal.Body>
                             <form onSubmit={(e) => {
-                                    !addFormData?.id ? addNewRecord(e) : updateRecord(e)
-                                    
-                                    }}>
+                                !addFormData?.id ? addNewRecord(e) : updateRecord(e)
+
+                            }}>
                                 <div className="form-group">
                                     <input type="name" name="name" onChange={handleAddFormChange} value={addFormData.name} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Name" />
                                 </div>
@@ -201,15 +251,47 @@ const [addData,setAddData] = useState()
 
                                     <input type="address" name="address" onChange={handleAddFormChange} value={addFormData.address} className="form-control" id="exampleInputPassword1" placeholder="Enter Address" />
                                 </div>
-
-                                <button type="submit" className="btn btn-success mt-4" >{addFormData?.id ? 'Update record' : 'Add record'}</button>
-                            </form>
+                                <div className="form-group mt-3">
+                                <span
+                                    className="d-inline-block"
+                                    data-toggle="popover"
+                                    data-trigger="focus"
+                                    data-content="Please selecet account(s)"
+                                >
+                                    <ReactSelect
+                                    styles={{
+                                        control: (baseStyles, state) => ({
+                                          ...baseStyles,
+                                          width:"180px"
+                                        }),
+                                      }}
+                                        // name="hobbies"
+                                        placeholder="Select Hobbies"
+                                        options={colourOptions}
+                                        isMulti
+                                        closeMenuOnSelect={false}
+                                        hideSelectedOptions={false}
+                                        components={{
+                                            Option
+                                        }}
+                                        onChange={handleSelectChange}
+                                        allowSelectAll={true}
+                                        value={addFormData.hobbies}
+                                    />
+                                </span>
+                                </div>
+                                <br />
+                                <div style={{float:'right',}}>
+                                <Button type="submit" className="btn btn-success me-2"  >{addFormData?.id ? 'Update record' : 'Add Record'}</Button>
+                                <Button variant="secondary" onClick={handleClose} >
+                                Close
+                            </Button>
+                                </div>
+                                 </form>
                         </Modal.Body>
 
                         <Modal.Footer>
-                            <Button variant="secondary" onClick={handleClose}>
-                                Close
-                            </Button>
+
 
                         </Modal.Footer>
                     </Modal>
