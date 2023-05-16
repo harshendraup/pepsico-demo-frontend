@@ -1,9 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useState } from 'react';
-import { Button, Modal, } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Button, Col, Row,Modal } from 'react-bootstrap';
 import "./IndexStyle.css"
 import { components } from "react-select";
 import { default as ReactSelect } from "react-select";
+import Modals from "../components/UI/Modal"
 function Home() {
     const [rowData, setRowData] = useState([
         {
@@ -60,11 +61,10 @@ function Home() {
         { value: "forest", label: "Forest" },
         { value: "slate", label: "Slate" },
         { value: "silver", label: "Silver" }
-      ];
-      
+    ];
+
     const [addData, setAddData] = useState()
     const [show, setShow] = useState(false);
-    
     const [optionSelected, setOptionSelected] = useState(null)
     const [addFormData, setAddFormData] = useState({
         id: null,
@@ -72,28 +72,30 @@ function Home() {
         country: "",
         city: "",
         address: "",
-        hobbies:''
+        hobbies: ''
     })
-    
+
+    const [viewDetailModal, setViewDetailModal] = useState(false);
+
     const handleAddFormChange = (e) => {
         e.preventDefault();
         setAddFormData(state => ({ ...state, [e.target.name]: e.target.value }))
     }
 
     const handleSelectChange = (selected) => {
-        setAddFormData({...addFormData,hobbies:selected})
+        setAddFormData({ ...addFormData, hobbies: selected })
     };
 
     const addNewRecord = (e) => {
         e.preventDefault()
-        console.log("addFormData", addFormData,addFormData.length > 0,!!addFormData.name)
+        console.log("addFormData", addFormData, addFormData.length > 0, !!addFormData.name)
 
         if (!!addFormData.name) {
             setRowData([
                 ...rowData,
                 {
                     id: rowData?.length + 2,
-                     name: addFormData?.name,
+                    name: addFormData?.name,
                     country: addFormData?.country,
                     city: addFormData?.city,
                     address: addFormData?.address,
@@ -105,7 +107,7 @@ function Home() {
         }
 
     }
-    
+
     console.log("addFormData==0", rowData)
 
     const handleClose = () => {
@@ -116,11 +118,11 @@ function Home() {
             country: "",
             city: "",
             address: "",
-            hobbies:''
-            
+            hobbies: ''
+
         });
     };
- 
+
     const updateRecord = (e) => {
         e.preventDefault();
         const nextCounters = rowData.map((c, i) => {
@@ -149,8 +151,213 @@ function Home() {
         );
     };
 
-    return (
+    const fetchUsers = async () => {
+        console.log("hello");
+        const url = await fetch("http://localhost:8089/getUsersList");
+        //console.log("response",response);
+        const response = await url.json();
+        console.log("response", response);
+    }
 
+    useEffect(() => {
+        fetchUsers();
+    }, [])
+
+    const handleCloseViewDetailsModal = () => {
+        setViewDetailModal(false);
+    };
+
+    const showViewDetailsModal = () => {
+        //setProductDetails(product);
+        setViewDetailModal(true);
+    };
+
+    const showAddDetailsModal = () => {
+        //setProductDetails(product);
+        handleShow();
+    };
+
+
+    /*render View Details */
+    const renderViewDetailsModal = () => {
+        // if (!productDetails) {
+        //     return null;
+        //   }
+
+        return (
+            <Modals
+                show={viewDetailModal}
+                handleClose={handleCloseViewDetailsModal}
+                modalTitle={"View Details"}
+                size="lg"
+            >
+                <Row>
+                    <Col md="6">
+                        <label className="key">ID</label>
+                        <p className="value">ID</p>
+                    </Col>
+                    <Col md="6">
+                        <label className="key">First Name</label>
+                        <p className="value">First Name</p>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md="6">
+                        <label className="key">Middle Name</label>
+                        <p className="value">Middle Name</p>
+                    </Col>
+                    <Col md="6">
+                        <label className="key">LastName</label>
+                        <p className="value">LastName</p>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md="12">
+                        <label className="key">Mobile Number</label>
+                        <p className="value">Mobile Number</p>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md="12">
+                        <label className="key">Email</label>
+                        <p className="value">Email</p>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md="12">
+                        <label className="key">Street</label>
+                        <p className="value">Street</p>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md="12">
+                        <label className="key">Hobbies</label>
+                        <p className="value">Hobbies</p>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md="12">
+                        <label className="key">Role</label>
+                        <p className="value">Role</p>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md="12">
+                        <label className="key">City</label>
+                        <p className="value">City</p>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md="12">
+                        <label className="key">Country</label>
+                        <p className="value">Country</p>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md="12">
+                        <label className="key">Gender</label>
+                        <p className="value">Gender</p>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md="12">
+                        <label className="key">Occupation</label>
+                        <p className="value">Occupation</p>
+                    </Col>
+                </Row>
+
+            </Modals>
+        );
+    }
+
+    /*render View Details */
+
+
+    /render Add Details Modal/
+    const renderAddDetailsModal = () => {
+        return (         
+            <div className="model_box">
+                <Modal
+                    show={show}
+                    onHide={handleClose}
+                    backdrop="static"
+                    keyboard={false}
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title>{addFormData?.id ? 'Update record' : 'Add record'}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <form onSubmit={(e) => {
+                            !addFormData?.id ? addNewRecord(e) : updateRecord(e)
+
+                        }}>
+                            <div className="form-group">
+                                <input type="name" name="name" onChange={handleAddFormChange} value={addFormData.name} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Name" />
+                            </div>
+                            <div className="form-group mt-3">
+                                <input type="country" name="country" onChange={handleAddFormChange} value={addFormData.country} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Country" />
+                            </div>
+                            <div className="form-group mt-3">
+                                <input type="city" name="city" onChange={handleAddFormChange} value={addFormData.city} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter City" />
+                            </div>
+                            <div className="form-group mt-3">
+
+                                <input type="address" name="address" onChange={handleAddFormChange} value={addFormData.address} className="form-control" id="exampleInputPassword1" placeholder="Enter Address" />
+                            </div>
+                            <div className="form-group mt-3">
+                                <span
+                                    className="d-inline-block"
+                                    data-toggle="popover"
+                                    data-trigger="focus"
+                                    data-content="Please selecet account(s)"
+                                >
+                                    <ReactSelect
+                                        styles={{
+                                            control: (baseStyles, state) => ({
+                                                ...baseStyles,
+                                                width: "180px"
+                                            }),
+                                        }}
+                                        // name="hobbies"
+                                        placeholder="Select Hobbies"
+                                        options={colourOptions}
+                                        isMulti
+                                        closeMenuOnSelect={false}
+                                        hideSelectedOptions={false}
+                                        components={{
+                                            Option
+                                        }}
+                                        onChange={handleSelectChange}
+                                        allowSelectAll={true}
+                                        value={addFormData.hobbies}
+                                    />
+                                </span>
+                            </div>
+                            <br />
+                            <div style={{ float: 'right', }}>
+                                <Button type="submit" className="btn btn-success me-2"  >{addFormData?.id ? 'Update record' : 'Add Record'}</Button>
+                                <Button variant="secondary" onClick={handleClose} >
+                                    Close
+                                </Button>
+                            </div>
+                        </form>
+                    </Modal.Body>
+
+                    <Modal.Footer>
+
+
+                    </Modal.Footer>
+                </Modal>
+                {/* Model Box Finsihs */}
+            </div>
+        )
+    }
+
+
+    /render Add Details Modal/
+
+
+    return (
         <div className="container p-0 m-0 " >
             <div className="crud shadow-lg p-3 mb-5 mt-5 bg-body rounded">
                 <div className="row ">
@@ -162,7 +369,7 @@ function Home() {
                                 dis
                                     : "flex", float: "right"
                             }}>
-                                <Button variant="primary" style={{marginBottom:'20px'}} onClick={handleShow}>
+                                <Button variant="primary" style={{ marginBottom: '20px' }} onClick={() => showAddDetailsModal()}>
                                     Add Record
                                 </Button>
 
@@ -187,7 +394,7 @@ function Home() {
                                     <th>Address</th>
                                     <th>Hobbies</th>
                                     <th>Actions</th>
-                                   
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -199,11 +406,12 @@ function Home() {
                                         <td>{item?.country}</td>
                                         <td>{item?.city}</td>
                                         <td>{item?.address}</td>
-                                        <td>{item?.hobbies?.map((hobie)=>(
+                                        <td>{item?.hobbies?.map((hobie) => (
                                             <span>{hobie.value},</span>
                                         ))}</td>
 
                                         <td>
+                                            <Button variant="primary" style={{ marginBottom: '20px' }} onClick={() => showViewDetailsModal()}>View</Button>
 
                                             <a href="#" className="edit" title="Edit" data-toggle="tooltip"><i className="material-icons" onClick={(e) => {
                                                 handleShow(e)
@@ -213,6 +421,7 @@ function Home() {
                                                 setRowData(rowData?.filter(obj => obj?.id != item.id))
                                             }}><i className="material-icons">&#xE872;</i></a>
 
+
                                         </td>
                                     </tr>
                                 })}
@@ -220,84 +429,12 @@ function Home() {
                             </tbody>
                         </table>
                     </div>
+                    {renderAddDetailsModal()}
+                    {renderViewDetailsModal()}
                 </div>
 
                 {/* <!--- Model Box ---> */}
-                <div className="model_box">
-                    <Modal
-                        show={show}
-                        onHide={handleClose}
-                        backdrop="static"
-                        keyboard={false}
-                    >
-                        <Modal.Header closeButton>
-                            <Modal.Title>{addFormData?.id ? 'Update record' : 'Add record'}</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <form onSubmit={(e) => {
-                                !addFormData?.id ? addNewRecord(e) : updateRecord(e)
 
-                            }}>
-                                <div className="form-group">
-                                    <input type="name" name="name" onChange={handleAddFormChange} value={addFormData.name} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Name" />
-                                </div>
-                                <div className="form-group mt-3">
-                                    <input type="country" name="country" onChange={handleAddFormChange} value={addFormData.country} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Country" />
-                                </div>
-                                <div className="form-group mt-3">
-                                    <input type="city" name="city" onChange={handleAddFormChange} value={addFormData.city} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter City" />
-                                </div>
-                                <div className="form-group mt-3">
-
-                                    <input type="address" name="address" onChange={handleAddFormChange} value={addFormData.address} className="form-control" id="exampleInputPassword1" placeholder="Enter Address" />
-                                </div>
-                                <div className="form-group mt-3">
-                                <span
-                                    className="d-inline-block"
-                                    data-toggle="popover"
-                                    data-trigger="focus"
-                                    data-content="Please selecet account(s)"
-                                >
-                                    <ReactSelect
-                                    styles={{
-                                        control: (baseStyles, state) => ({
-                                          ...baseStyles,
-                                          width:"180px"
-                                        }),
-                                      }}
-                                        // name="hobbies"
-                                        placeholder="Select Hobbies"
-                                        options={colourOptions}
-                                        isMulti
-                                        closeMenuOnSelect={false}
-                                        hideSelectedOptions={false}
-                                        components={{
-                                            Option
-                                        }}
-                                        onChange={handleSelectChange}
-                                        allowSelectAll={true}
-                                        value={addFormData.hobbies}
-                                    />
-                                </span>
-                                </div>
-                                <br />
-                                <div style={{float:'right',}}>
-                                <Button type="submit" className="btn btn-success me-2"  >{addFormData?.id ? 'Update record' : 'Add Record'}</Button>
-                                <Button variant="secondary" onClick={handleClose} >
-                                Close
-                            </Button>
-                                </div>
-                                 </form>
-                        </Modal.Body>
-
-                        <Modal.Footer>
-
-
-                        </Modal.Footer>
-                    </Modal>
-
-                    {/* Model Box Finsihs */}
-                </div>
             </div>
         </div>
     );
