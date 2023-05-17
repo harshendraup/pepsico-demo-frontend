@@ -1,443 +1,370 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useState, useEffect } from 'react';
-import { Button, Col, Row,Modal } from 'react-bootstrap';
+import { Button, Col, Row, Modal } from 'react-bootstrap';
 import "./IndexStyle.css"
 import { components } from "react-select";
 import { default as ReactSelect } from "react-select";
 import Modals from "../components/UI/Modal"
+import RenderViewDetailsModal from "./ViewDetailsModal";
+import { colorOptions } from "./consttants";
+import UpdateModal from "./UpdateModal";
+import AppHeader from "./AppHeader";
+import TableHeader from "./TableHeader";
+import { renderAddress } from "./Helper"
+import { getUsers } from "./ApiClient"
 function Home() {
-    const [rowData, setRowData] = useState([
-        {
-            id: 1,
-            name: "Shubham",
-            country: "India",
-            city: "Jaipur",
-            address: "Tilak nagar, Raja park, jaipur",
-        },
-        {
-            id: 2,
-            name: "Rahul",
-            country: "India",
-            city: "Delhi",
-            address: "Tilak nagar, Raja park, jaipur",
-        },
-        {
-            id: 3,
-            name: "Shivam",
-            country: "India",
-            city: "Udaipur",
-            address: "Tilak nagar, Raja park, jaipur",
-        }
-        , {
-            id: 4,
-            name: "Sunil",
-            country: "India",
-            city: "Jaipur",
-            address: "Tilak nagar, Raja park, jaipur",
-        },
-        {
-            id: 5,
-            name: "Ajay",
-            country: "India",
-            city: "Jaipur",
-            address: "Tilak nagar, Raja park, jaipur",
-        },
-        {
-            id: 6,
-            name: "Mohit",
-            country: "India",
-            city: "Jaipur",
-            address: "Tilak nagar, Raja park, jaipur",
-        }
-    ])
-    const colourOptions = [
-        { value: "ocean1", label: "Ocean" },
-        { value: "blue", label: "Blue" },
-        { value: "purple", label: "Purple" },
-        { value: "red", label: "Red" },
-        { value: "orange", label: "Orange" },
-        { value: "yellow", label: "Yellow" },
-        { value: "green", label: "Green" },
-        { value: "forest", label: "Forest" },
-        { value: "slate", label: "Slate" },
-        { value: "silver", label: "Silver" }
-    ];
+	const [firstName, setFirstName] = useState()
+	const [middleName, setMiddleName] = useState()
+	const [lastName, setLastName] = useState()
+	const [phone, setPhone] = useState()
+	const [email, setEmail] = useState()
+	const [hobbies, setHobbies] = useState([])
+	const [role, setRole] = useState()
+	const [city, setCity] = useState()
+	const [state, setState] = useState()
+	const [contry, setContry] = useState()
+	const [pin, setPin] = useState()
+	const [gender, setGender] = useState("Male")
+	const [occupation, setOccupation] = useState()
+	const [addData, setAddData] = useState()
+	const [show, setShow] = useState(false);
+	const [optionSelected, setOptionSelected] = useState(null)
+	const [viewDetailModal, setViewDetailModal] = useState(false);
+	const [datas, setData] = useState();
+	const [updateModal, setUpdateModal] = useState(false)
+	const [userData, setUpdateUserData] = useState(undefined);
+	const [selectedHobbies, setSelectedHobbies] = useState(undefined);
 
-    const [addData, setAddData] = useState()
-    const [show, setShow] = useState(false);
-    const [optionSelected, setOptionSelected] = useState(null)
-    const [addFormData, setAddFormData] = useState({
-        id: null,
-        name: "",
-        country: "",
-        city: "",
-        address: "",
-        hobbies: ''
-    })
+	/*handle Fields */
+	const handleGender = (e) => {
+		setGender(e.target.value)
+	}
 
-    const [viewDetailModal, setViewDetailModal] = useState(false);
+	const handleFirstName = (e) => {
+		e.preventDefault();
+		setFirstName(e.target.value);
+	}
+	const handleMiddleName = (e) => {
+		e.preventDefault();
+		setMiddleName(e.target.value)
+	}
+	const handleLastName = (e) => {
+		e.preventDefault();
+		setLastName(e.target.value)
+	}
+	const handlePhone = (e) => {
+		e.preventDefault()
+		setPhone(e.target.value)
+	}
+	const handleEmail = (e) => {
+		e.preventDefault()
+		setEmail(e.target.value)
+	}
+	const handleHobbies = (e) => {
+		e.preventDefault()
+		setHobbies(e.target.value)
+	}
+	const handleRole = (e) => {
+		e.preventDefault();
+		setRole(e.target.value)
+	}
+	const handleCity = (e) => {
+		e.preventDefault()
+		setCity(e.target.value)
+	}
+	const handleState = (e) => {
+		e.preventDefault()
+		setState(e.target.value)
+	}
+	const handleContry = (e) => {
+		e.preventDefault()
+		setContry(e.target.value)
+	}
+	const handlePin = (e) => {
+		e.preventDefault()
+		setPin(e.target.value)
+	}
+	const handleOccupation = (e) => {
+		e.preventDefault()
+		setOccupation(e.target.value)
+	}
 
-    const handleAddFormChange = (e) => {
-        e.preventDefault();
-        setAddFormData(state => ({ ...state, [e.target.name]: e.target.value }))
-    }
+	const handleSelectChange = (e) => {
+		console.log("Here are the values", e);
+		let a = '';
+		e?.map(h => {
+			a = a + h.value + "," + " "
+		})
+		setSelectedHobbies(a);
+	};
 
-    const handleSelectChange = (selected) => {
-        setAddFormData({ ...addFormData, hobbies: selected })
-    };
-
-    const addNewRecord = (e) => {
-        e.preventDefault()
-        console.log("addFormData", addFormData, addFormData.length > 0, !!addFormData.name)
-
-        if (!!addFormData.name) {
-            setRowData([
-                ...rowData,
-                {
-                    id: rowData?.length + 2,
-                    name: addFormData?.name,
-                    country: addFormData?.country,
-                    city: addFormData?.city,
-                    address: addFormData?.address,
-                    hobbies: addFormData.hobbies
-                }
-            ]);
-            console.log("addFormData==9", addFormData)
-            handleClose();
-        }
-
-    }
-
-    console.log("addFormData==0", rowData)
-
-    const handleClose = () => {
-        setShow(false)
-        setAddFormData({
-            id: null,
-            name: "",
-            country: "",
-            city: "",
-            address: "",
-            hobbies: ''
-
-        });
-    };
-
-    const updateRecord = (e) => {
-        e.preventDefault();
-        const nextCounters = rowData.map((c, i) => {
-            if (c.id === addFormData?.id) {
-                return addFormData
-            } else {
-                return c;
-            }
-        });
-        setRowData(nextCounters);
-        handleClose()
-    }
-    const handleShow = () => setShow(true);
-    const Option = (props) => {
-        return (
-            <div>
-                <components.Option {...props}>
-                    <input
-                        type="checkbox"
-                        checked={props.isSelected}
-                        onChange={() => null}
-                    />{" "}
-                    <label>{props.label}</label>
-                </components.Option>
-            </div>
-        );
-    };
-
-    const fetchUsers = async () => {
-        console.log("hello");
-        const url = await fetch("http://localhost:8089/getUsersList");
-        //console.log("response",response);
-        const response = await url.json();
-        console.log("response", response);
-    }
-
-    useEffect(() => {
-        fetchUsers();
-    }, [])
-
-    const handleCloseViewDetailsModal = () => {
-        setViewDetailModal(false);
-    };
-
-    const showViewDetailsModal = () => {
-        //setProductDetails(product);
-        setViewDetailModal(true);
-    };
-
-    const showAddDetailsModal = () => {
-        //setProductDetails(product);
-        handleShow();
-    };
+	/* */
+	const handleShow = () => setShow(true);
+	const Option = (props) => {
+		return (
+			<div>
+				<components.Option {...props}>
+					<input
+						type="checkbox"
+						checked={props.isSelected}
+						onChange={() => null}
+					/>{" "}
+					<label>{props.label}</label>
+				</components.Option>
+			</div>
+		);
+	};
 
 
-    /*render View Details */
-    const renderViewDetailsModal = () => {
-        // if (!productDetails) {
-        //     return null;
-        //   }
+	const handleCloseViewDetailsModal = () => {
+		setViewDetailModal(false);
+	};
 
-        return (
-            <Modals
-                show={viewDetailModal}
-                handleClose={handleCloseViewDetailsModal}
-                modalTitle={"View Details"}
-                size="lg"
-            >
-                <Row>
-                    <Col md="6">
-                        <label className="key">ID</label>
-                        <p className="value">ID</p>
-                    </Col>
-                    <Col md="6">
-                        <label className="key">First Name</label>
-                        <p className="value">First Name</p>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md="6">
-                        <label className="key">Middle Name</label>
-                        <p className="value">Middle Name</p>
-                    </Col>
-                    <Col md="6">
-                        <label className="key">LastName</label>
-                        <p className="value">LastName</p>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md="12">
-                        <label className="key">Mobile Number</label>
-                        <p className="value">Mobile Number</p>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md="12">
-                        <label className="key">Email</label>
-                        <p className="value">Email</p>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md="12">
-                        <label className="key">Street</label>
-                        <p className="value">Street</p>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md="12">
-                        <label className="key">Hobbies</label>
-                        <p className="value">Hobbies</p>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md="12">
-                        <label className="key">Role</label>
-                        <p className="value">Role</p>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md="12">
-                        <label className="key">City</label>
-                        <p className="value">City</p>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md="12">
-                        <label className="key">Country</label>
-                        <p className="value">Country</p>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md="12">
-                        <label className="key">Gender</label>
-                        <p className="value">Gender</p>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md="12">
-                        <label className="key">Occupation</label>
-                        <p className="value">Occupation</p>
-                    </Col>
-                </Row>
+	const showViewDetailsModal = () => {
+		setViewDetailModal(true);
+	};
 
-            </Modals>
-        );
-    }
+	const showAddDetailsModal = () => {
+		handleShow();
+	};
 
-    /*render View Details */
+	const handleClose = () => {
+		setShow(false)
+	};
 
 
-    /render Add Details Modal/
-    const renderAddDetailsModal = () => {
-        return (         
-            <div className="model_box">
-                <Modal
-                    show={show}
-                    onHide={handleClose}
-                    backdrop="static"
-                    keyboard={false}
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title>{addFormData?.id ? 'Update record' : 'Add record'}</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <form onSubmit={(e) => {
-                            !addFormData?.id ? addNewRecord(e) : updateRecord(e)
-
-                        }}>
-                            <div className="form-group">
-                                <input type="name" name="name" onChange={handleAddFormChange} value={addFormData.name} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Name" />
-                            </div>
-                            <div className="form-group mt-3">
-                                <input type="country" name="country" onChange={handleAddFormChange} value={addFormData.country} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Country" />
-                            </div>
-                            <div className="form-group mt-3">
-                                <input type="city" name="city" onChange={handleAddFormChange} value={addFormData.city} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter City" />
-                            </div>
-                            <div className="form-group mt-3">
-
-                                <input type="address" name="address" onChange={handleAddFormChange} value={addFormData.address} className="form-control" id="exampleInputPassword1" placeholder="Enter Address" />
-                            </div>
-                            <div className="form-group mt-3">
-                                <span
-                                    className="d-inline-block"
-                                    data-toggle="popover"
-                                    data-trigger="focus"
-                                    data-content="Please selecet account(s)"
-                                >
-                                    <ReactSelect
-                                        styles={{
-                                            control: (baseStyles, state) => ({
-                                                ...baseStyles,
-                                                width: "180px"
-                                            }),
-                                        }}
-                                        // name="hobbies"
-                                        placeholder="Select Hobbies"
-                                        options={colourOptions}
-                                        isMulti
-                                        closeMenuOnSelect={false}
-                                        hideSelectedOptions={false}
-                                        components={{
-                                            Option
-                                        }}
-                                        onChange={handleSelectChange}
-                                        allowSelectAll={true}
-                                        value={addFormData.hobbies}
-                                    />
-                                </span>
-                            </div>
-                            <br />
-                            <div style={{ float: 'right', }}>
-                                <Button type="submit" className="btn btn-success me-2"  >{addFormData?.id ? 'Update record' : 'Add Record'}</Button>
-                                <Button variant="secondary" onClick={handleClose} >
-                                    Close
-                                </Button>
-                            </div>
-                        </form>
-                    </Modal.Body>
-
-                    <Modal.Footer>
+	/*render View Details */
 
 
-                    </Modal.Footer>
-                </Modal>
-                {/* Model Box Finsihs */}
-            </div>
-        )
-    }
+	/*render View Details */
+	const renderAddDetailsModal = () => {
+		return (
+			<div className="model_box">
+				<Modal
+					show={show}
+					onHide={handleClose}
+					backdrop="static"
+					keyboard={false}
+				>
+					<Modal.Header closeButton>
+						<Modal.Title>Add User</Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+						<form>
+							<div className="form-group">
+								<input type="name" name="firstName" onChange={handleFirstName} value={firstName} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter First Name" />
+							</div>
+							<div className="form-group mt-3">
+								<input type="country" name="country" onChange={handleMiddleName} value={middleName} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Middle Name" />
+							</div>
+							<div className="form-group mt-3">
+								<input type="city" name="city" onChange={handleLastName} value={lastName} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Last Name" />
+							</div>
+							<div className="form-group mt-3">
+								<input type="city" name="city" onChange={handleRole} value={role} className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Role" />
+							</div>
+							<div className="form-group mt-3">
+
+								<input type="address" name="address" onChange={handlePhone} value={phone} className="form-control" id="exampleInputPassword1" placeholder="Enter Mobile Number" />
+							</div>
+							<div className="form-group mt-3">
+
+								<input type="address" name="address" onChange={handleEmail} value={email} className="form-control" id="exampleInputPassword1" placeholder="Enter Email" />
+							</div>
+							<div className="form-group mt-3">
+
+								<input
+									type="address"
+									name="address"
+									onChange={handleOccupation} value={occupation} className="form-control" id="exampleInputPassword1" placeholder="Your Occupation" />
+							</div>
+
+							<div className="form-group mt-3">
+
+								<input type="address" name="address" onChange={handleCity} value={city} className="form-control" id="exampleInputPassword1" placeholder="Enter City" />
+							</div>
+							<div className="form-group mt-3">
+
+								<input type="address" name="address" onChange={handleState} value={state} className="form-control" id="exampleInputPassword1" placeholder="State" />
+							</div>
+							<div className="form-group mt-3">
+								<input type="address" name="address" onChange={handleContry} value={contry} className="form-control" id="exampleInputPassword1" placeholder="Country" />
+							</div>
+							<div className="form-group mt-3">
+								<input type="address" name="address" onChange={handlePin} value={pin} className="form-control" id="exampleInputPassword1" placeholder="Pin Code" />
+							</div>
+							<div className="form-group mt-3">
+								<span
+									className="d-inline-block"
+									data-toggle="popover"
+									data-trigger="focus"
+									data-content="Please selecet account(s)"
+								>
+									<ReactSelect
+										styles={{
+											control: (baseStyles, state) => ({
+												...baseStyles,
+												width: "180px"
+											}),
+										}}
+										// name="hobbies"
+										placeholder="Select Hobbies"
+										options={colorOptions}
+										isMulti
+										closeMenuOnSelect={false}
+										hideSelectedOptions={false}
+										components={{
+											Option
+										}}
+										onChange={handleSelectChange}
+										allowSelectAll={true}
+									//value={addFormData.hobbies}
+									/>
+								</span>
+							</div>
+
+							<div className="App" style={{}}>
+								<h3>Gender</h3>
+
+								<input
+									type="radio"
+									name="topping"
+									value="Male"
+									id="male"
+									checked={gender === "Male"}
+									onChange={handleGender}
+								/>
+								<label htmlFor="male">Male</label>
+
+								<input
+									type="radio"
+									name="gender"
+									value="Female"
+									id="female"
+									checked={gender === "Female"}
+									onChange={handleGender}
+								/>
+								<label htmlFor="female">Female</label>
+
+								<p>
+									Select gender <strong>{gender}</strong>
+								</p>
+							</div>
 
 
-    /render Add Details Modal/
+							<br />
+							<div style={{ float: 'right', }}>
+								<Button onClick={() => handleSubmit()} className="btn btn-success me-2">Add User</Button>
+								<Button variant="secondary" onClick={handleClose} >
+									Close
+								</Button>
+							</div>
+						</form>
+					</Modal.Body>
+
+					<Modal.Footer>
 
 
-    return (
-        <div className="container p-0 m-0 " >
-            <div className="crud shadow-lg p-3 mb-5 mt-5 bg-body rounded">
-                <div className="row ">
-
-                    <div>
-                        <div style={{ color: "#2f4261", display: "flex", justifyContent: "center", alignItems: "center" }}><h2><b>Student Details</b></h2></div>
-                        <div className="search">
-                            <form className="form-inline" style={{
-                                dis
-                                    : "flex", float: "right"
-                            }}>
-                                <Button variant="primary" style={{ marginBottom: '20px' }} onClick={() => showAddDetailsModal()}>
-                                    Add Record
-                                </Button>
-
-                            </form>
-                        </div>
-                    </div>
-
-                </div>
-                <div className="row">
-                    <div className="table-responsive " >
-                        <table className="table table-striped table-hover table-bordered">
-                            <div class="form-check">
+					</Modal.Footer>
+				</Modal>
+				{/* Model Box Finsihs */}
+			</div>
+		)
+	}
 
 
-                            </div>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Name </th>
-                                    <th>Country</th>
-                                    <th>City </th>
-                                    <th>Address</th>
-                                    <th>Hobbies</th>
-                                    <th>Actions</th>
-
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                                {rowData?.length > 0 && rowData?.map((item, i) => {
-                                    return <tr>
-                                        <td>{item?.id}</td>
-                                        <td>{item?.name}</td>
-                                        <td>{item?.country}</td>
-                                        <td>{item?.city}</td>
-                                        <td>{item?.address}</td>
-                                        <td>{item?.hobbies?.map((hobie) => (
-                                            <span>{hobie.value},</span>
-                                        ))}</td>
-
-                                        <td>
-                                            <Button variant="primary" style={{ marginBottom: '20px' }} onClick={() => showViewDetailsModal()}>View</Button>
-
-                                            <a href="#" className="edit" title="Edit" data-toggle="tooltip"><i className="material-icons" onClick={(e) => {
-                                                handleShow(e)
-                                                setAddFormData(item)
-                                            }}>&#xE254;</i></a>
-                                            <a href="#" className="delete" title="Delete" data-toggle="tooltip" style={{ color: "red" }} onClick={() => {
-                                                setRowData(rowData?.filter(obj => obj?.id != item.id))
-                                            }}><i className="material-icons">&#xE872;</i></a>
+	/*render Add Details Modal*/
 
 
-                                        </td>
-                                    </tr>
-                                })}
+	const handleSubmit = () => {
+		console.log("I got here in handle submit");
+		let requestOptions = {
+			method: "POST",
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				FirstName: firstName,
+				MiddleName: middleName,
+				LastName: lastName,
+				role: role,
+				phone: phone,
+				email: email,
+				city: city,
+				state: state,
+				country: contry,
+				pincode: pin,
+				hobbies: !!selectedHobbies ? selectedHobbies : '',
+				gender: gender,
+				occupation: "Software Engineer"
 
-                            </tbody>
-                        </table>
-                    </div>
-                    {renderAddDetailsModal()}
-                    {renderViewDetailsModal()}
-                </div>
+			})
+		}
+		console.log("api data", requestOptions);
+		fetch("http://192.168.1.6:8089/createUser", requestOptions).then(res => fetchUsers());
+	}
 
-                {/* <!--- Model Box ---> */}
+	const deleteUser = (id) => {
+		let requestOptions = {
+			method: "POST",
+			headers: { 'Content-Type': 'application/json' },
+		}
+		fetch(`http://192.168.1.6:8089/deleteUser/${id}`, requestOptions).then(res => fetchUsers())
+	}
 
-            </div>
-        </div>
-    );
+	const fetchUsers = async () => {
+		console.log("hello");
+		const url = await fetch("http://192.168.1.6:8089/getUsersList");
+		//console.log("response",response);
+		const response = await url.json();
+		setData(response)
+		console.log("response", response);
+	}
+
+	useEffect(() => {
+		fetchUsers();
+	}, [])
+
+	console.log("data-- ", datas);
+
+	return (
+		<div className="container p-0 m-0 " >
+			<div className="crud shadow-lg p-3 mb-5 mt-5 bg-body rounded">
+				<AppHeader showAddDetailsModal={() => showAddDetailsModal()} />
+				<div className="row">
+					<div className="table-responsive " >
+						<table className="table table-striped table-hover table-bordered">
+							{<TableHeader />}
+							<tbody>
+								{datas?.data.map((item, i) => {
+									return <tr key={item.UserID}>
+										<td>{item?.FirstName}</td>
+										<td>{item?.MiddleName}</td>
+										<td>{item?.LastName}</td>
+										<td>{item?.phone}</td>
+										<td>{renderAddress(item)}</td>
+										<td>{item?.email}</td>
+										<td>{item?.gender}</td>
+										<td>{item?.hobbies}</td>
+										<td>{item?.occupation}</td>
+										<td>{item?.role}</td>
+										<td><Button variant="primary" style={{ marginBottom: '20px' }} onClick={() => showViewDetailsModal()}>View</Button></td>
+										<td>
+											<a href="#" className="edit" title="Edit" data-toggle="tooltip"><i className="material-icons" onClick={(e) => { setUpdateModal(true), setUpdateUserData(item) }}>&#xE254;</i></a>
+											<a href="#" className="delete" title="Delete" data-toggle="tooltip" style={{ color: "red" }} onClick={() => deleteUser(item.UserID)}><i className="material-icons">&#xE872;</i></a>
+										</td>
+									</tr>
+								})}
+
+							</tbody>
+						</table>
+					</div>
+					{renderAddDetailsModal()}
+					<UpdateModal updateModal={updateModal} handleClose={() => setUpdateModal(false)} />
+
+					<RenderViewDetailsModal viewDetailModal={viewDetailModal} handleCloseViewDetailsModal={handleCloseViewDetailsModal} />
+				</div>
+			</div>
+		</div>
+	);
 }
 
 export default Home;

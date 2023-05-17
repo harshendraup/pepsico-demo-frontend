@@ -7,6 +7,7 @@ import { Modal, Button } from "react-bootstrap";
  **/
 
 const NewModal = (props) => {
+	console.log("propssss",props)
   return (
     <Modal size={props.size} show={props.show} onHide={props.handleClose}>
       <Modal.Header closeButton>
