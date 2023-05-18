@@ -34,12 +34,10 @@ function Home() {
 	const [updateModal, setUpdateModal] = useState(false)
 	const [userData, setUpdateUserData] = useState(undefined);
 	const [selectedHobbies, setSelectedHobbies] = useState(undefined);
-
 	/*handle Fields */
 	const handleGender = (e) => {
 		setGender(e.target.value)
 	}
-
 	const handleFirstName = (e) => {
 		e.preventDefault();
 		setFirstName(e.target.value);
@@ -97,8 +95,6 @@ function Home() {
 		})
 		setSelectedHobbies(a);
 	};
-
-	/* */
 	const handleShow = () => setShow(true);
 	const Option = (props) => {
 		return (
@@ -114,8 +110,6 @@ function Home() {
 			</div>
 		);
 	};
-
-
 	const handleCloseViewDetailsModal = () => {
 		setViewDetailModal(false);
 	};
@@ -131,11 +125,6 @@ function Home() {
 	const handleClose = () => {
 		setShow(false)
 	};
-
-
-	/*render View Details */
-
-
 	/*render View Details */
 	const renderAddDetailsModal = () => {
 		return (
@@ -193,6 +182,7 @@ function Home() {
 							<div className="form-group mt-3">
 								<input type="address" name="address" onChange={handlePin} value={pin} className="form-control" id="exampleInputPassword1" placeholder="Pin Code" />
 							</div>
+                            <div style={{display:"flex",flexDirection:"row", justifyContent:"space-between"}}>
 							<div className="form-group mt-3">
 								<span
 									className="d-inline-block"
@@ -207,7 +197,6 @@ function Home() {
 												width: "180px"
 											}),
 										}}
-										// name="hobbies"
 										placeholder="Select Hobbies"
 										options={colorOptions}
 										isMulti
@@ -218,7 +207,7 @@ function Home() {
 										}}
 										onChange={handleSelectChange}
 										allowSelectAll={true}
-									//value={addFormData.hobbies}
+									
 									/>
 								</span>
 							</div>
@@ -250,6 +239,7 @@ function Home() {
 									Select gender <strong>{gender}</strong>
 								</p>
 							</div>
+                            </div>
 
 
 							<br />
@@ -271,12 +261,10 @@ function Home() {
 			</div>
 		)
 	}
-
-
-	/*render Add Details Modal*/
-
-
 	const handleSubmit = () => {
+        // return(
+        //     <h1>Hello</h1>
+        // )
 		console.log("I got here in handle submit");
 		let requestOptions = {
 			method: "POST",
@@ -294,37 +282,48 @@ function Home() {
 				pincode: pin,
 				hobbies: !!selectedHobbies ? selectedHobbies : '',
 				gender: gender,
-				occupation: "Software Engineer"
+				occupation: occupation,
 
 			})
 		}
 		console.log("api data", requestOptions);
-		fetch("http://192.168.1.6:8089/createUser", requestOptions).then(res => fetchUsers());
+		fetch("http://192.168.0.118:8089/createUser", requestOptions)
+            .then(res => {
+                fetchUsers()
+                setFirstName();
+                setMiddleName();
+                setLastName();
+                setPhone();
+                setEmail();
+                setHobbies();
+                setCity();
+                setState();
+                setContry();
+                setPin();
+                setGender();
+                setOccupation();
+                setShow(false);
+            });
 	}
-
 	const deleteUser = (id) => {
 		let requestOptions = {
 			method: "POST",
 			headers: { 'Content-Type': 'application/json' },
 		}
-		fetch(`http://192.168.1.6:8089/deleteUser/${id}`, requestOptions).then(res => fetchUsers())
+		fetch(`http://192.168.0.118:8089/deleteUser/${id}`, requestOptions).then(res => fetchUsers())
 	}
-
 	const fetchUsers = async () => {
 		console.log("hello");
-		const url = await fetch("http://192.168.1.6:8089/getUsersList");
+		const url = await fetch("http://192.168.1.3:8089/getUsersList");
 		//console.log("response",response);
 		const response = await url.json();
 		setData(response)
 		console.log("response", response);
 	}
-
 	useEffect(() => {
 		fetchUsers();
 	}, [])
-
 	console.log("data-- ", datas);
-
 	return (
 		<div className="container p-0 m-0 " >
 			<div className="crud shadow-lg p-3 mb-5 mt-5 bg-body rounded">
@@ -334,7 +333,7 @@ function Home() {
 						<table className="table table-striped table-hover table-bordered">
 							{<TableHeader />}
 							<tbody>
-								{datas?.data.map((item, i) => {
+								{datas?.data.map((item,i) => {
 									return <tr key={item.UserID}>
 										<td>{item?.FirstName}</td>
 										<td>{item?.MiddleName}</td>
@@ -348,18 +347,18 @@ function Home() {
 										<td>{item?.role}</td>
 										<td><Button variant="primary" style={{ marginBottom: '20px' }} onClick={() => showViewDetailsModal()}>View</Button></td>
 										<td>
-											<a href="#" className="edit" title="Edit" data-toggle="tooltip"><i className="material-icons" onClick={(e) => { setUpdateModal(true), setUpdateUserData(item) }}>&#xE254;</i></a>
+											<a href="#" className="edit" title="Edit" data-toggle="tooltip"><i className="material-icons" onClick={(e) => { setUpdateModal(true), setUpdateUserData(item)}}>&#xE254;</i></a>
 											<a href="#" className="delete" title="Delete" data-toggle="tooltip" style={{ color: "red" }} onClick={() => deleteUser(item.UserID)}><i className="material-icons">&#xE872;</i></a>
 										</td>
 									</tr>
-								})}
+								})
+								}
 
 							</tbody>
 						</table>
 					</div>
 					{renderAddDetailsModal()}
-					<UpdateModal updateModal={updateModal} handleClose={() => setUpdateModal(false)} />
-
+					<UpdateModal updateModal={updateModal} userData={userData} handleClose={() => setUpdateModal(false)} fetchUsers={fetchUsers} />
 					<RenderViewDetailsModal viewDetailModal={viewDetailModal} handleCloseViewDetailsModal={handleCloseViewDetailsModal} />
 				</div>
 			</div>
